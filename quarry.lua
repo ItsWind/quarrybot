@@ -183,12 +183,9 @@ end
 
 local states = {
     minequarry = function()
-        local rowsToDo = 16 - (currentMiningData.rows - 1)
-        local blocksToDo = 15 - (currentMiningData.blocksInRow - 1)
-
         -- This mines a layer 16x16
-        for x=1,rowsToDo do
-            for y=1,blocksToDo do
+        for x=currentMiningData.rows,16 do
+            for y=currentMiningData.blocksInRow,15 do
                 doMove()
 
                 -- Set current mining location to return to
@@ -197,13 +194,13 @@ local states = {
         
             doTurn()
         
-            if x ~= rowsToDo then
+            if x ~= 16 then
                 doMove()
             end
         
             doTurn()
         
-            if x ~= rowsToDo then
+            if x ~= 16 then
                 turningRight = not turningRight
             else
                 doMove("down")
