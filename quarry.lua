@@ -8,6 +8,7 @@ local homeLocation = vector.new(2, 106, 413)
 local chestLocation = vector.new(1, 105, 412)
 local currentMiningLocation = vector.new(0, 0, 0)
 local currentMiningDirection = "n"
+local currentMiningTurningRight = true
 
 local orienMoveModifications = {
     up = function()
@@ -163,6 +164,7 @@ local states = {
         -- Set current mining location to return to
         currentMiningLocation.x, currentMiningLocation.y, currentMiningLocation.z = currentLocation.x, currentLocation.y, currentLocation.z
         currentMiningDirection = facingDirection
+        currentMiningTurningRight = turningRight
 
         -- This mines a layer 16x16
         for x=1,16,1 do
@@ -188,6 +190,7 @@ local states = {
             if checkFuelAndInventoryWhileMining() then
                 goToLocation(currentMiningLocation, false)
                 doTurnTowards(currentMiningDirection)
+                turningRight = currentMiningTurningRight
                 return
             end
         end
