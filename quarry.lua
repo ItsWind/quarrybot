@@ -35,9 +35,11 @@ local orienMoveModifications = {
 }
 local function doMove(orien)
     if orien == nil then
+        turtle.dig()
         turtle.forward()
         orienMoveModifications[facingDirection]()
     elseif turtle[orien] ~= nil then
+        turtle["dig" .. orien:sub(1, 1):upper() .. orien:sub(2)]()
         turtle[orien]()
         orienMoveModifications[orien]()
     end
@@ -165,14 +167,12 @@ local states = {
         -- This mines a layer 16x16
         for x=1,16,1 do
             for y=1,15,1 do
-                turtle.dig()
                 doMove()
             end
         
             doTurn()
         
             if x ~= 16 then
-                turtle.dig()
                 doMove()
             end
         
@@ -181,7 +181,6 @@ local states = {
             if x ~= 16 then
                 turningRight = not turningRight
             else
-                turtle.digDown()
                 doMove("down")
             end
 
