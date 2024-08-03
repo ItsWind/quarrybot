@@ -183,19 +183,13 @@ end
 
 local states = {
     minequarry = function()
-        -- Set current mining location to return to
-        if saveCurrentMiningData(1, 1) then return end
-        
         -- This mines a layer 16x16
         for x=currentMiningData.rows,16 do
-            -- Set current mining location to return to
-            if saveCurrentMiningData(x, 1) then return end
-
             for y=currentMiningData.blocksInRow,15 do
-                -- Set current mining location to return to
-                if saveCurrentMiningData(x, y) then return end
-
                 doMove()
+
+                -- Set current mining location to return to
+                if saveCurrentMiningData(x, y+1) then return end
             end
         
             doTurn()
@@ -208,10 +202,16 @@ local states = {
         
             if x ~= 16 then
                 turningRight = not turningRight
+
+                -- Set current mining location to return to
+                if saveCurrentMiningData(x+1, 1) then return end
             else
                 doMove("down")
             end
         end
+
+        -- Set current mining location to return to
+        if saveCurrentMiningData(1, 1) then return end
     end
 }
 
