@@ -1,6 +1,21 @@
-local params = {...}
-local currentLocation = vector.new(tonumber(params[1]), tonumber(params[2]), tonumber(params[3]))
-local facingDirection = params[4]
+local fileParams = {...}
+
+local fileParamX = tonumber(fileParams[1])
+local fileParamY = tonumber(fileParams[2])
+local fileParamZ = tonumber(fileParams[3])
+
+if fileParamX == nil or fileParamY == nil or fileParamZ == nil then
+    print("ERROR: Your start coordinates are invalid.\nProper usage: quarry {startX} {startY} {startZ} {facing}")
+    return
+end
+local currentLocation = vector.new(fileParamX, fileParamY, fileParamZ)
+
+local facingDirection = fileParams[4]
+if facingDirection ~= "n" and facingDirection ~= "e" and facingDirection ~= "s" and facingDirection ~= "w" then
+    print("ERROR: Your facing direction is invalid. Try n, e, s, or w.\nProper usage: quarry {startX} {startY} {startZ} {facing}")
+    return
+end
+
 local turningRight = true
 local currentState = "minequarry"
 
@@ -14,6 +29,7 @@ local currentMiningData = {
     rows = 1, -- Rows
     blocksInRow = 1 -- Blocks in row
 }
+local miningSafeYPadding = 4
 
 local orienMoveModifications = {
     up = function()
@@ -149,7 +165,7 @@ local function checkFuelAndInventoryWhileMining()
         goToLocation(homeLocation, true)
         pullFromRefuel()
         -- Give some space before next movement
-        for i=1, 4 do doMove("down") end
+        for i=1, miningSafeYPadding do doMove("down") end
     end
 
     -- Check if inventory is full
@@ -158,7 +174,7 @@ local function checkFuelAndInventoryWhileMining()
         goToLocation(chestLocation, true)
         dumpIntoChestAbove()
         -- Give some space before next movement
-        for i=1, 4 do doMove("down") end
+        for i=1, miningSafeYPadding do doMove("down") end
     end
 
     return botHadToGo
@@ -183,6 +199,12 @@ end
 
 local states = {
     minequarry = function()
+        if currentLocation.y > math.min(homeLocation.y, chestLocation.y) - miningSafeYPadding then
+            print("ERROR: Current location is UNSAFE for mining quarry. Aborting.")
+            currentState = "idle"
+            return
+        end
+
         -- This mines a layer 16x16
         for x=currentMiningData.rows,16 do
             for y=currentMiningData.blocksInRow,15 do
@@ -212,6 +234,9 @@ local states = {
 
         -- Set current mining location to return to
         if saveCurrentMiningData(1, 1) then return end
+    end,
+    idle = function()
+        sleep(1)
     end
 }
 
