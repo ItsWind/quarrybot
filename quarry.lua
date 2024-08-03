@@ -64,17 +64,19 @@ local numDirectionTurns = {
     [4] = "w"
 }
 local function doTurn()
-    if turningRight then
-        turtle.turnRight()
-        local nextNum = turnDirectionNums[facingDirection] + 1
-        if nextNum > 4 then nextNum = 1 end
-        facingDirection = numDirectionTurns[nextNum]
-    else
+    local modMult = 1
+
+    if turningRight == false then
+        modMult = -1
         turtle.turnLeft()
-        local nextNum = turnDirectionNums[facingDirection] - 1
-        if nextNum < 1 then nextNum = 4 end
-        facingDirection = numDirectionTurns[nextNum]
+    else
+        turtle.turnRight()
     end
+
+    local nextNum = turnDirectionNums[facingDirection] + (1 * modMult)
+    if nextNum > 4 then nextNum = 1 elseif nextNum < 1 then nextNum = 4 end
+
+    facingDirection = numDirectionTurns[nextNum]
 end
 
 local function doTurnTowards(orien)
