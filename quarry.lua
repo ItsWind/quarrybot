@@ -6,6 +6,8 @@ local currentState = "minequarry"
 
 local homeLocation = vector.new(2, 106, 413)
 local chestLocation = vector.new(1, 105, 412)
+local currentMiningLocation = vector.new(0, 0, 0)
+local currentMiningDirection = "n"
 
 local orienMoveModifications = {
     up = function()
@@ -78,8 +80,15 @@ local function getBlocksFromLocation(location)
     return math.abs(diff.x), math.abs(diff.y), math.abs(diff.z)
 end
 
-local function goToLocation(location)
+local function goToLocation(location, isUpwards)
     local toMove = vector.new(getBlocksFromLocation(location))
+
+    -- Move downwards
+    if isUpwards == false then
+        while currentLocation.y > location.y do
+            doMove("down")
+        end
+    end
 
     -- Move towards X
     if currentLocation.x < location.x then
@@ -102,13 +111,31 @@ local function goToLocation(location)
     end
 
     -- Move upwards
-    while currentLocation.y < location.y do
-        doMove("up")
+    if isUpwards == true then
+        while currentLocation.y < location.y do
+            doMove("up")
+        end
+    end
+end
+
+local function pullFromRefuel()
+    -- TODO
+end
+
+local function dumpIntoChestAbove()
+    for i=1, 16 do
+        turtle.select(i)
+        turtle.refuel()
+        turtle.dropUp()
     end
 end
 
 local states = {
     minequarry = function()
+        -- Set current mining location to return to
+        currentMiningLocation.x, currentMiningLocation.y, currentMiningLocation.z = currentLocation.x, currentLocation.y, currentLocation.z
+        currentMiningDirection = facingDirection
+
         -- This mines a layer 16x16
         for x=1,16,1 do
             for y=1,15,1 do
@@ -132,15 +159,36 @@ local states = {
                 turtle.down()
             end
         end
+
+        local botHadToGo = false
+
+        -- Check if going to die
+        local distX, distY, distZ = getBlocksFromLocation(homeLocation)
+        if turtle.getFuelLevel() < 300 + distX + distY + distZ then
+            botHadToGo = true
+            goToLocation(homeLocation, true)
+            pullFromRefuel()
+            -- Give some space before next movement
+            for i=1, 4 do doMove("down") end
+        end
+
+        -- Check if inventory is full
+        if turtle.getItemDetail(16) ~= nil then
+            botHadToGo = true
+            goToLocation(chestLocation, true)
+            dumpIntoChestAbove()
+            -- Give some space before next movement
+            for i=1, 4 do doMove("down") end
+        end
+
+        -- Back to it
+        if botHadToGo == true then
+            goToLocation(currentMiningLocation, false)
+            doTurnTowards(currentMiningDirection)
+        end
     end
 }
 
---while true do
-    --states[currentState]()
---end
-
-print(currentLocation)
-
-goToLocation(homeLocation)
-
---print(currentLocation)
+while true do
+    states[currentState]()
+end
