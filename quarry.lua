@@ -57,23 +57,54 @@ local function doTurn()
     if turningRight then
         turtle.turnRight()
         local nextNum = turnDirectionNums[facingDirection] + 1
-        print(nextNum)
         if nextNum > 4 then nextNum = 1 end
         facingDirection = numDirectionTurns[nextNum]
     else
         turtle.turnLeft()
         local nextNum = turnDirectionNums[facingDirection] - 1
-        print(nextNum)
         if nextNum < 1 then nextNum = 4 end
         facingDirection = numDirectionTurns[nextNum]
     end
-    print(facingDirection)
 end
 
-local function getBlocksFromHome()
-    --local currentLocation = vector3.new(gps.locate(5))
-    local diff = currentLocation - homeLocation
-    return math.abs(diff.x) + math.abs(diff.y) + math.abs(diff.z)
+local function doTurnTowards(orien)
+    while facingDirection ~= orien do
+        doTurn()
+    end
+end
+
+local function getBlocksFromLocation(location)
+    local diff = currentLocation - location
+    return math.abs(diff.x), math.abs(diff.y), math.abs(diff.z)
+end
+
+local function goToLocation(location)
+    local toMove = vector.new(getBlocksFromLocation(location))
+
+    -- Move towards X
+    if currentLocation.x < location.x then
+        doTurnTowards("e")
+    else
+        doTurnTowards("w")
+    end
+    while currentLocation.x ~= location.x do
+        doMove()
+    end
+
+    -- Move towards Z
+    if currentLocation.z < location.z then
+        doTurnTowards("s")
+    else
+        doTurnTowards("n")
+    end
+    while currentLocation.z ~= location.z do
+        doMove()
+    end
+
+    -- Move upwards
+    while currentLocation.y < location.y do
+        doMove("up")
+    end
 end
 
 local states = {
@@ -110,20 +141,6 @@ local states = {
 
 print(currentLocation)
 
-doTurn()
-doTurn()
-doTurn()
-doTurn()
-doTurn()
-doTurn()
-
-turningRight = false
-
-doTurn()
-doTurn()
-doTurn()
-doTurn()
-doTurn()
-doTurn()
+goToLocation(homeLocation)
 
 --print(currentLocation)
