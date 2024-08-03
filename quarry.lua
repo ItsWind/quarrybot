@@ -8,26 +8,26 @@ local homeLocation = vector.new(2, 413, 106)
 local chestLocation = vector.new(1, 412, 105)
 
 local orienMoveModifications = {
-    ["up"] = function()
+    up = function()
         currentLocation.y = currentLocation.y + 1
     end,
-    ["down"] = function()
+    down = function()
         currentLocation.y = currentLocation.y - 1
     end,
     -- -Z
-    ["n"] = function()
+    n = function()
         currentLocation.z = currentLocation.z - 1
     end,
     -- +X
-    ["e"] = function()
+    e = function()
         currentLocation.x = currentLocation.x + 1
     end,
     -- +Z
-    ["s"] = function()
+    s = function()
         currentLocation.z = currentLocation.z + 1
     end,
     -- -X
-    ["w"] = function()
+    w = function()
         currentLocation.x = currentLocation.x - 1
     end
 }
@@ -43,16 +43,16 @@ local function doMove(orien)
 end
 
 local turnDirectionNums = {
-    ["n"] = 1,
-    ["e"] = 2,
-    ["s"] = 3,
-    ["w"] = 4
+    n = 1,
+    e = 2,
+    s = 3,
+    w = 4
 }
 local numDirectionTurns = {
-    [1] = n,
-    [2] = e,
-    [3] = s,
-    [4] = w
+    [1] = "n",
+    [2] = "e",
+    [3] = "s",
+    [4] = "w"
 }
 local function doTurn()
     if turningRight then
