@@ -39,13 +39,14 @@ local function doMove(orien)
         turtle[orien]()
         orienMoveModifications[orien]()
     end
+    print(currentLocation)
 end
 
 local turnDirectionNums = {
-    n = 1,
-    e = 2,
-    s = 3,
-    w = 4
+    ["n"] = 1,
+    ["e"] = 2,
+    ["s"] = 3,
+    ["w"] = 4
 }
 local numDirectionTurns = {
     [1] = n,
