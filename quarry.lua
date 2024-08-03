@@ -166,14 +166,14 @@ local states = {
         for x=1,16,1 do
             for y=1,15,1 do
                 turtle.dig()
-                turtle.forward()
+                doMove()
             end
         
             doTurn()
         
             if x ~= 16 then
                 turtle.dig()
-                turtle.forward()
+                doMove()
             end
         
             doTurn()
@@ -182,7 +182,7 @@ local states = {
                 turningRight = not turningRight
             else
                 turtle.digDown()
-                turtle.down()
+                doMove("down")
             end
 
             -- Check fuel and inventory, and if needed; get back to it
