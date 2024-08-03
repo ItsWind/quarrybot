@@ -1,11 +1,11 @@
 local params = {...}
-local currentLocation = vector3.new(tonumber(params[1]), tonumber(params[2]), tonumber(params[3]))
+local currentLocation = vector.new(tonumber(params[1]), tonumber(params[2]), tonumber(params[3]))
 local facingDirection = params[4]
 local turningRight = true
 local currentState = "minequarry"
 
-local homeLocation = vector3.new(2, 413, 106)
-local chestLocation = vector3.new(1, 412, 105)
+local homeLocation = vector.new(2, 413, 106)
+local chestLocation = vector.new(1, 412, 105)
 
 local orienMoveModifications = {
     up = function()
@@ -48,10 +48,10 @@ local turnDirectionNums = {
     w = 4
 }
 local numDirectionTurns = {
-    1 = n,
-    2 = e,
-    3 = s,
-    4 = w
+    [1] = n,
+    [2] = e,
+    [3] = s,
+    [4] = w
 }
 local function doTurn()
     if turningRight then
@@ -65,6 +65,7 @@ local function doTurn()
         if nextNum < 1 then nextNum = 4 end
         facingDirection = numDirectionTurns[nextNum]
     end
+    print(facingDirection)
 end
 
 local function getBlocksFromHome()
@@ -74,7 +75,7 @@ local function getBlocksFromHome()
 end
 
 local states = {
-    minequarry = function() {
+    minequarry = function()
         -- This mines a layer 16x16
         for x=1,16,1 do
             for y=1,15,1 do
@@ -98,7 +99,7 @@ local states = {
                 turtle.down()
             end
         end
-    }
+    end
 }
 
 --while true do
