@@ -6,9 +6,14 @@ local currentState = "minequarry"
 
 local homeLocation = vector.new(2, 106, 413)
 local chestLocation = vector.new(1, 105, 412)
-local currentMiningLocation = vector.new(0, 0, 0)
-local currentMiningDirection = "n"
-local currentMiningTurningRight = true
+
+local currentMiningData = {
+    location = vector.new(0,0,0),
+    direction = "n",
+    turningRight = true,
+    rows = 1, -- Rows
+    blocksInRow = 1 -- Blocks in row
+}
 
 local orienMoveModifications = {
     up = function()
@@ -159,41 +164,57 @@ local function checkFuelAndInventoryWhileMining()
     return botHadToGo
 end
 
+local function saveCurrentMiningData(x, y)
+    currentMiningData.location.x, currentMiningData.location.y, currentMiningData.location.z = currentLocation.x, currentLocation.y, currentLocation.z
+    currentMiningData.direction = facingDirection
+    currentMiningData.turningRight = turningRight
+    currentMiningData.rows = x
+    currentMiningData.blocksInRow = y
+
+    -- Check fuel and inventory, and if needed; get back to it
+    if checkFuelAndInventoryWhileMining() then
+        goToLocation(currentMiningData.location, false)
+        doTurnTowards(currentMiningData.direction)
+        turningRight = currentMiningData.turningRight
+        return true
+    end
+    return false
+end
+
 local states = {
     minequarry = function()
-        -- Set current mining location to return to
-        currentMiningLocation.x, currentMiningLocation.y, currentMiningLocation.z = currentLocation.x, currentLocation.y, currentLocation.z
-        currentMiningDirection = facingDirection
-        currentMiningTurningRight = turningRight
+        local rowsToDo = 16 - (currentMiningData.rows - 1)
+        local blocksToDo = 15 - (currentMiningData.blocksInRow - 1)
 
         -- This mines a layer 16x16
-        for x=1,16,1 do
-            for y=1,15,1 do
+        for x=1,rowsToDo do
+            for y=1,blocksToDo do
+                doMove()
+
+                -- Set current mining location to return to
+                if saveCurrentMiningData(x, y) then return end
+            end
+        
+            doTurn()
+        
+            if x ~= rowsToDo then
                 doMove()
             end
         
             doTurn()
         
-            if x ~= 16 then
-                doMove()
-            end
-        
-            doTurn()
-        
-            if x ~= 16 then
+            if x ~= rowsToDo then
                 turningRight = not turningRight
             else
                 doMove("down")
             end
 
-            -- Check fuel and inventory, and if needed; get back to it
-            if checkFuelAndInventoryWhileMining() then
-                goToLocation(currentMiningLocation, false)
-                doTurnTowards(currentMiningDirection)
-                turningRight = currentMiningTurningRight
-                return
-            end
+            -- Set current mining location to return to
+            if saveCurrentMiningData(x, 1) then return end
         end
+
+        -- Set current mining location to return to
+        if saveCurrentMiningData(1, 1) then return end
     end
 }
 
