@@ -208,7 +208,10 @@ end
 local states = {
     minequarry = function()
         local _, blockDataDown = turtle.inspectDown()
-        if currentLocation.y > math.min(homeLocation.y, chestLocation.y) - miningSafeYPadding then
+        local maxYToStart = math.min(homeLocation.y, chestLocation.y) - miningSafeYPadding
+        print(currentLocation.y)
+        print(maxYToStart)
+        if currentLocation.y > maxYToStart then
             print("ERROR: Current location is UNSAFE for mining quarry. Aborting.")
             currentState = "idle"
             return
