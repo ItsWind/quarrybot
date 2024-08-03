@@ -4,8 +4,8 @@ local facingDirection = params[4]
 local turningRight = true
 local currentState = "minequarry"
 
-local homeLocation = vector.new(2, 413, 106)
-local chestLocation = vector.new(1, 412, 105)
+local homeLocation = vector.new(2, 106, 413)
+local chestLocation = vector.new(1, 105, 412)
 
 local orienMoveModifications = {
     up = function()
@@ -39,7 +39,6 @@ local function doMove(orien)
         turtle[orien]()
         orienMoveModifications[orien]()
     end
-    print(currentLocation)
 end
 
 local turnDirectionNums = {
@@ -58,17 +57,17 @@ local function doTurn()
     if turningRight then
         turtle.turnRight()
         local nextNum = turnDirectionNums[facingDirection] + 1
-        --print(nextNum)
+        print(nextNum)
         if nextNum > 4 then nextNum = 1 end
         facingDirection = numDirectionTurns[nextNum]
     else
         turtle.turnLeft()
         local nextNum = turnDirectionNums[facingDirection] - 1
-        --print(nextNum)
+        print(nextNum)
         if nextNum < 1 then nextNum = 4 end
         facingDirection = numDirectionTurns[nextNum]
     end
-    --print(facingDirection)
+    print(facingDirection)
 end
 
 local function getBlocksFromHome()
@@ -111,15 +110,20 @@ local states = {
 
 print(currentLocation)
 
-doMove()
-doMove("up")
 doTurn()
-doMove()
-doMove()
-doMove("up")
-doMove()
 doTurn()
-doMove()
-doMove("down")
+doTurn()
+doTurn()
+doTurn()
+doTurn()
+
+turningRight = false
+
+doTurn()
+doTurn()
+doTurn()
+doTurn()
+doTurn()
+doTurn()
 
 --print(currentLocation)
