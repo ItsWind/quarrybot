@@ -58,17 +58,17 @@ local function doTurn()
     if turningRight then
         turtle.turnRight()
         local nextNum = turnDirectionNums[facingDirection] + 1
-        print(nextNum)
+        --print(nextNum)
         if nextNum > 4 then nextNum = 1 end
         facingDirection = numDirectionTurns[nextNum]
     else
         turtle.turnLeft()
         local nextNum = turnDirectionNums[facingDirection] - 1
-        print(nextNum)
+        --print(nextNum)
         if nextNum < 1 then nextNum = 4 end
         facingDirection = numDirectionTurns[nextNum]
     end
-    print(facingDirection)
+    --print(facingDirection)
 end
 
 local function getBlocksFromHome()
@@ -122,4 +122,4 @@ doTurn()
 doMove()
 doMove("down")
 
-print(currentLocation)
+--print(currentLocation)
