@@ -89,8 +89,6 @@ local function getBlocksFromLocation(location)
 end
 
 local function goToLocation(location, isUpwards)
-    local toMove = vector.new(getBlocksFromLocation(location))
-
     -- Move downwards
     if isUpwards == false then
         while currentLocation.y > location.y do
