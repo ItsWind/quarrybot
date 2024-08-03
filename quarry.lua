@@ -33,3 +33,4 @@ local function doLoop()
         end
     end
 end
+doLoop()
