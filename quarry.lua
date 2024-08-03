@@ -128,6 +128,32 @@ local function dumpIntoChestAbove()
         turtle.refuel()
         turtle.dropUp()
     end
+    turtle.select(1)
+end
+
+local function checkFuelAndInventoryWhileMining()
+    local botHadToGo = false
+
+    -- Check if going to die
+    local distX, distY, distZ = getBlocksFromLocation(homeLocation)
+    if turtle.getFuelLevel() < 300 + distX + distY + distZ then
+        botHadToGo = true
+        goToLocation(homeLocation, true)
+        pullFromRefuel()
+        -- Give some space before next movement
+        for i=1, 4 do doMove("down") end
+    end
+
+    -- Check if inventory is full
+    if turtle.getItemDetail(16) ~= nil then
+        botHadToGo = true
+        goToLocation(chestLocation, true)
+        dumpIntoChestAbove()
+        -- Give some space before next movement
+        for i=1, 4 do doMove("down") end
+    end
+
+    return botHadToGo
 end
 
 local states = {
@@ -158,33 +184,13 @@ local states = {
                 turtle.digDown()
                 turtle.down()
             end
-        end
 
-        local botHadToGo = false
-
-        -- Check if going to die
-        local distX, distY, distZ = getBlocksFromLocation(homeLocation)
-        if turtle.getFuelLevel() < 300 + distX + distY + distZ then
-            botHadToGo = true
-            goToLocation(homeLocation, true)
-            pullFromRefuel()
-            -- Give some space before next movement
-            for i=1, 4 do doMove("down") end
-        end
-
-        -- Check if inventory is full
-        if turtle.getItemDetail(16) ~= nil then
-            botHadToGo = true
-            goToLocation(chestLocation, true)
-            dumpIntoChestAbove()
-            -- Give some space before next movement
-            for i=1, 4 do doMove("down") end
-        end
-
-        -- Back to it
-        if botHadToGo == true then
-            goToLocation(currentMiningLocation, false)
-            doTurnTowards(currentMiningDirection)
+            -- Check fuel and inventory, and if needed; get back to it
+            if checkFuelAndInventoryWhileMining() then
+                goToLocation(currentMiningLocation, false)
+                doTurnTowards(currentMiningDirection)
+                return
+            end
         end
     end
 }
