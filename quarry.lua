@@ -274,20 +274,20 @@ local states = {
         end
     end,
     idle = function()
-        os.sleep(1)
+        sleep(1)
     end
 }
 
-function stateLoop()
+--[[while true do
     if states[currentState] ~= nil then
         states[currentState]()
     else
         print("State '" .. currentState .. "' is unknown to me.")
         currentState = "idle"
-    end
-    os.sleep(0.1)
-    stateLoop()
-end
+    sleep(0.1)
+end]]
+
+
 
 local CryptoNet = require("cryptoNet")
 function netStart()
@@ -295,7 +295,19 @@ function netStart()
     for k, v in pairs(Config.networkUsers) do
         CryptoNet.addUser(k, v)
     end
-    stateLoop()
+    print("starting while thread")
+    os.startThread(function()
+        print("thread started")
+        while true do
+            print(currentState)
+            if states[currentState] ~= nil then
+                states[currentState]()
+            else
+                print("State '" .. currentState .. "' is unknown to me.")
+                currentState = "idle"
+            sleep(0.1)
+        end
+    end)
 end
 
 function netEvent(event)
