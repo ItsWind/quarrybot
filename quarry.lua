@@ -58,19 +58,23 @@ local orienMoveModifications = {
 local function doMove(orien)
     if orien == nil then
         local _, blockDataForward = turtle.inspect()
-        if blockDataForward == nil or (blockDataForward.name ~= "computercraft:turtle" and blockDataForward.name ~= "computercraft:turtle_advanced") then
+        if type(blockDataForward) == "string" or (blockDataForward.name ~= "computercraft:turtle" and blockDataForward.name ~= "computercraft:turtle_advanced") then
             turtle.dig()
             turtle.forward()
             orienMoveModifications[facingDirection]()
+        else
+            doMove()
         end
     elseif turtle[orien] ~= nil then
         local funcName = orien:sub(1, 1):upper() .. orien:sub(2)
 
         local _, blockDataOrien = turtle["inspect" .. funcName]
-        if blockDataOrien == nil or (blockDataOrien.name ~= "computercraft:turtle" and blockDataOrien.name ~= "computercraft:turtle_advanced") then
+        if type(blockDataOrien) == "string" or (blockDataOrien.name ~= "computercraft:turtle" and blockDataOrien.name ~= "computercraft:turtle_advanced") then
             turtle["dig" .. funcName]()
             turtle[orien]()
             orienMoveModifications[orien]()
+        else
+            doMove(orien)
         end
     end
 end
@@ -215,7 +219,7 @@ local states = {
             print("ERROR: Current location is UNSAFE for mining quarry. Aborting.")
             currentState = "idle"
             return
-        elseif currentLocation.y <= -60 or (currentLocation.y == 59 and blockDataDown ~= nil and blockDataDown.name == "minecraft:bedrock") then
+        elseif currentLocation.y <= -60 or (currentLocation.y == 59 and type(blockDataDown) ~= "string" and blockDataDown.name == "minecraft:bedrock") then
             print("Bedrock level reached. Going home.")
             goToLocation(homeLocation)
             currentState = "idle"
