@@ -261,6 +261,7 @@ local function detectWaterOrLava()
     if type(blockDataDown) == "table" then
         if blockDataDown.name == "minecraft:water" or blockDataDown.name == "minecraft:lava" then
             turtle.placeDown()
+            turtle.digDown()
         end
     end
 end
