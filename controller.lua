@@ -25,3 +25,14 @@ function netEvent(event)
 end
 
 CryptoNet.startEventLoop(netStart, netEvent)
+
+local function inputLoop()
+    if sendSocket ~= nil then
+        print("Send message: ")
+        local toSend = io.read()
+        CryptoNet.send(sendSocket, toSend)
+        print("Sent: " .. toSend)
+    end
+    inputLoop()
+end
+inputLoop()
