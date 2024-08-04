@@ -298,7 +298,7 @@ local states = {
         end
     end,
     idle = function()
-        sleep(1)
+        os.sleep(1)
     end
 }
 
