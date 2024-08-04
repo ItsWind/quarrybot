@@ -225,7 +225,7 @@ local function detectWaterOrLava()
         if blockDataDown.name == "minecraft:water" then
             --turtle.select(1) //not needed really. select should always be on 1 unless inv actions taking place
             turtle.place()
-            sleep(3)
+            sleep(5)
             turtle.place()
         elseif blockDataDown.name == "minecraft:lava" then
             turtle.select(2)
