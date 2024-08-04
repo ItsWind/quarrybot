@@ -207,6 +207,9 @@ local function saveCurrentMiningData(x, y)
     currentMiningData.rows = x
     currentMiningData.blocksInRow = y
 
+    -- Check if state changed
+    if currentState ~= "minequarry" then return true end
+
     -- Check fuel and inventory, and if needed; get back to it
     if checkFuelAndInventoryWhileMining() then
         returnToMiningLocation()
@@ -285,7 +288,6 @@ local function setupNetLoop()
         for k, v in pairs(Config.networkUsers) do
             CryptoNet.addUser(k, v)
         end
-        sleep(0)
     end
     
     function netEvent(event)
@@ -300,7 +302,6 @@ local function setupNetLoop()
                 CryptoNet.send(socket, "I only talk to valid users.")
             end
         end
-        sleep(0)
     end
     CryptoNet.startEventLoop(netStart, netEvent)
 end
@@ -313,7 +314,6 @@ local function setupStateLoop()
             print("State '" .. currentState .. "' is unknown to me.")
             currentState = "idle"
         end
-        sleep(0)
     end
 end
 
