@@ -278,37 +278,43 @@ local states = {
     end
 }
 
-local CryptoNet = require("cryptoNet")
-function netStart()
-    CryptoNet.host(Config.networkName)
-    for k, v in pairs(Config.networkUsers) do
-        CryptoNet.addUser(k, v)
-    end
-    sleep(0)
-end
-
-function netEvent(event)
-    if event[1] == "encrypted_message" then
-        local socket = event[3]
-        if socket.username ~= nil and Config.networkUsers[socket.username] ~= nil then
-            local message = event[2]
-            print(socket.username .. ": " .. message)
-            -- Process message
-            currentState = message
-        else
-            CryptoNet.send(socket, "I only talk to valid users.")
+local function setupNetLoop()
+    local CryptoNet = require("cryptoNet")
+    function netStart()
+        CryptoNet.host(Config.networkName)
+        for k, v in pairs(Config.networkUsers) do
+            CryptoNet.addUser(k, v)
         end
+        sleep(0)
     end
-    sleep(0)
+    
+    function netEvent(event)
+        if event[1] == "encrypted_message" then
+            local socket = event[3]
+            if socket.username ~= nil and Config.networkUsers[socket.username] ~= nil then
+                local message = event[2]
+                print(socket.username .. ": " .. message)
+                -- Process message
+                currentState = message
+            else
+                CryptoNet.send(socket, "I only talk to valid users.")
+            end
+        end
+        sleep(0)
+    end
+    CryptoNet.startEventLoop(netStart, netEvent)
 end
-CryptoNet.startEventLoop(netStart, netEvent)
 
-while true do
-    if states[currentState] ~= nil then
-        states[currentState]()
-    else
-        print("State '" .. currentState .. "' is unknown to me.")
-        currentState = "idle"
+local function setupStateLoop()
+    while true do
+        if states[currentState] ~= nil then
+            states[currentState]()
+        else
+            print("State '" .. currentState .. "' is unknown to me.")
+            currentState = "idle"
+        end
+        sleep(0)
     end
-    sleep(0)
 end
+
+parallel.waitForAll(setupNetLoop, setupStateLoop)
