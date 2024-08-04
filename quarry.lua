@@ -39,6 +39,7 @@ function netEvent(event)
             local message = event[2]
             print(socket.username .. ": " .. message)
             -- Process message
+            currentState = message
         else
             CryptoNet.send(socket, "I only talk to valid users.")
         end
@@ -216,6 +217,12 @@ local function checkFuelAndInventoryWhileMining()
     return botHadToGo
 end
 
+local function returnToMiningLocation()
+    goToLocation(currentMiningData.location, false)
+    doTurnTowards(currentMiningData.direction)
+    turningRight = currentMiningData.turningRight
+end
+
 local function saveCurrentMiningData(x, y)
     currentMiningData.location.x, currentMiningData.location.y, currentMiningData.location.z = currentLocation.x, currentLocation.y, currentLocation.z
     currentMiningData.direction = facingDirection
@@ -225,9 +232,7 @@ local function saveCurrentMiningData(x, y)
 
     -- Check fuel and inventory, and if needed; get back to it
     if checkFuelAndInventoryWhileMining() then
-        goToLocation(currentMiningData.location, false)
-        doTurnTowards(currentMiningData.direction)
-        turningRight = currentMiningData.turningRight
+        returnToMiningLocation()
         return true
     end
     return false
@@ -243,7 +248,7 @@ local states = {
             return
         elseif currentLocation.y <= -60 or (currentLocation.y == 59 and type(blockDataDown) ~= "string" and blockDataDown.name == "minecraft:bedrock") then
             print("Bedrock level reached. Going home.")
-            goToLocation(homeLocation)
+            goToLocation(homeLocation, true)
             currentState = "idle"
             return
         end
@@ -278,12 +283,30 @@ local states = {
         -- Set current mining location to return to
         if saveCurrentMiningData(1, 1) then return end
     end,
+    gohome = function()
+        goToLocation(homeLocation, true)
+        currentState = "idle"
+    end,
+    gomining = function()
+        if currentMiningData.location.x ~= 0 or currentMiningData.location.y ~= 0 or currentMiningData.location.z ~= 0 then
+            returnToMiningLocation()
+            currentState = "minequarry"
+        else
+            print("Mining location is default. Aborting.")
+            currentState = "idle"
+        end
+    end,
     idle = function()
         sleep(1)
     end
 }
 
 while true do
-    states[currentState]()
+    if states[currentState] ~= nil then
+        states[currentState]()
+    else
+        print("State '" .. currentState .. "' is unknown to me.")
+        currentState = "idle"
+    end
     sleep(0.1)
 end
