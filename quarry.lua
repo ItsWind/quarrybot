@@ -1,6 +1,6 @@
 local initFirstSlotItemDetail = turtle.getItemDetail(1)
-if initFirstSlotItemDetail == nil or initFirstSlotItemDetail.name ~= "minecraft:cobblestone" then
-    print("ERROR: Quarry bot requires COBBLESTONE to be in the first inventory slot.")
+if initFirstSlotItemDetail == nil or initFirstSlotItemDetail.name ~= "minecraft:sponge" then
+    print("ERROR: Quarry bot requires SPONGE to be in the first inventory slot.")
     return
 end
 
@@ -163,7 +163,7 @@ local function goToLocation(location, isUpwards)
 end
 
 local function iterateInventory(action)
-    -- Skip 1 for stone
+    -- Skip 1 for sponge
     for i=2, 16 do
         action(i)
     end
