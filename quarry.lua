@@ -156,18 +156,39 @@ local function goToLocation(location, isUpwards)
     end
 end
 
+local function iterateInventory(action)
+    -- Skip 1 for stone
+    for i=2, 16 do
+        action(i)
+    end
+    turtle.select(1)
+end
+
 local function pullFromRefuel()
-    -- TODO
+    turtle.suckUp()
+    turtle.suckUp()
+
+    iterateInventory(function(i)
+        turtle.select(i)
+        turtle.refuel()
+        local itemInSlot = turtle.getItemDetail(i)
+        if itemInSlot ~= nil and (itemInSlot.name == "minecraft:coal" or itemInSlot.name == "minecraft:coal_block") then
+            turtle.dropUp()
+        end
+    end)
+
+    if turtle.getFuelLevel() < 1000 then
+        print("ERROR: Unsafe fuel levels after refuel attempt. Setting to idle.")
+        currentState = "idle"
+    end
 end
 
 local function dumpIntoChestAbove()
-    -- Skip 1 and 2 for buckets
-    for i=3, 16 do
+    iterateInventory(function(i)
         turtle.select(i)
         turtle.refuel()
         turtle.dropUp()
-    end
-    turtle.select(1)
+    end)
 end
 
 local function checkFuelAndInventoryWhileMining()
@@ -213,26 +234,29 @@ local function saveCurrentMiningData(x, y)
 
     -- Check fuel and inventory, and if needed; get back to it
     if checkFuelAndInventoryWhileMining() then
-        returnToMiningLocation()
+        -- Check if state changed
+        if currentState == "minequarry" then
+            returnToMiningLocation()
+        end
         return true
     end
     return false
 end
 
 local function detectWaterOrLava()
+    local _, blockDataForward = turtle.inspect()
+    if type(blockDataForward) == "table" then
+        if blockDataForward.name == "minecraft:water" or blockDataForward.name == "minecraft:lava" then
+            turtle.place()
+            --turtle.dig() // not needed since this detect happens before normal moving/digging
+        end
+    end
+    
     local _, blockDataDown = turtle.inspectDown()
     if type(blockDataDown) == "table" then
-        if blockDataDown.name == "minecraft:water" then
-            --turtle.select(1) //not needed really. select should always be on 1 unless inv actions taking place
-            turtle.place()
-            sleep(5)
-            turtle.place()
-        elseif blockDataDown.name == "minecraft:lava" then
-            turtle.select(2)
-            turtle.place()
-            sleep(1)
-            turtle.place()
-            turtle.select(1)
+        if blockDataDown.name == "minecraft:water" or blockDataDown.name == "minecraft:lava" then
+            turtle.placeDown()
+            turtle.digDown()
         end
     end
 end
