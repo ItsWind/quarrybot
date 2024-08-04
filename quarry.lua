@@ -68,7 +68,7 @@ local function doMove(orien)
     elseif turtle[orien] ~= nil then
         local funcName = orien:sub(1, 1):upper() .. orien:sub(2)
 
-        local _, blockDataOrien = turtle["inspect" .. funcName]
+        local _, blockDataOrien = turtle["inspect" .. funcName]()
         if type(blockDataOrien) == "string" or (blockDataOrien.name ~= "computercraft:turtle" and blockDataOrien.name ~= "computercraft:turtle_advanced") then
             turtle["dig" .. funcName]()
             turtle[orien]()
@@ -213,8 +213,6 @@ local states = {
     minequarry = function()
         local _, blockDataDown = turtle.inspectDown()
         local maxYToStart = math.min(homeLocation.y, chestLocation.y) - miningSafeYPadding
-        print(currentLocation.y)
-        print(maxYToStart)
         if currentLocation.y > maxYToStart then
             print("ERROR: Current location is UNSAFE for mining quarry. Aborting.")
             currentState = "idle"
