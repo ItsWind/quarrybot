@@ -161,7 +161,8 @@ local function pullFromRefuel()
 end
 
 local function dumpIntoChestAbove()
-    for i=1, 16 do
+    -- Skip 1 and 2 for buckets
+    for i=3, 16 do
         turtle.select(i)
         turtle.refuel()
         turtle.dropUp()
@@ -218,6 +219,24 @@ local function saveCurrentMiningData(x, y)
     return false
 end
 
+local function detectWaterOrLava()
+    local _, blockDataDown = turtle.inspectDown()
+    if type(blockDataDown) == "table" then
+        if blockDataDown.name == "minecraft:water" then
+            --turtle.select(1) //not needed really. select should always be on 1 unless inv actions taking place
+            turtle.place()
+            sleep(3)
+            turtle.place()
+        elseif blockDataDown.name == "minecraft:lava" then
+            turtle.select(2)
+            turtle.place()
+            sleep(1)
+            turtle.place()
+            turtle.select(1)
+        end
+    end
+end
+
 local states = {
     minequarry = function()
         local maxYToStart = math.min(homeLocation.y, chestLocation.y) - miningSafeYPadding
@@ -234,6 +253,7 @@ local states = {
         -- This mines a layer 16x16
         for x=currentMiningData.rows,16 do
             for y=currentMiningData.blocksInRow,15 do
+                detectWaterOrLava()
                 doMove()
 
                 -- Set current mining location to return to
