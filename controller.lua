@@ -2,6 +2,15 @@ local CryptoNet = require("cryptoNet")
 
 local sendSocket = nil
 
+function inputLoop()
+    print("Send message: ")
+    local toSend = io.read()
+    CryptoNet.send(sendSocket, toSend)
+    print("Sent: " .. toSend)
+    
+    inputLoop()
+end
+
 function netStart()
     print("Enter host: ")
     local hostName = io.read()
@@ -17,6 +26,7 @@ function netEvent(event)
     if event[1] == "login" then
         sendSocket = event[3]
         print("Logged in as " .. event[2])
+        inputLoop()
     elseif event[1] == "login_failed" then
         print("Login failed.")
     elseif event[1] == "encrypted_message" then
@@ -25,14 +35,3 @@ function netEvent(event)
 end
 
 CryptoNet.startEventLoop(netStart, netEvent)
-
-local function inputLoop()
-    if sendSocket ~= nil then
-        print("Send message: ")
-        local toSend = io.read()
-        CryptoNet.send(sendSocket, toSend)
-        print("Sent: " .. toSend)
-    end
-    inputLoop()
-end
-inputLoop()
