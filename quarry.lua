@@ -1,3 +1,9 @@
+local initFirstSlotItemDetail = turtle.getItemDetail(1)
+if initFirstSlotItemDetail == nil or initFirstSlotItemDetail.name ~= "minecraft:cobblestone" then
+    print("ERROR: Quarry bot requires COBBLESTONE to be in the first inventory slot.")
+    return
+end
+
 local fileParams = {...}
 
 local fileParamX = tonumber(fileParams[1])
@@ -251,7 +257,7 @@ local function detectWaterOrLava()
             --turtle.dig() // not needed since this detect happens before normal moving/digging
         end
     end
-    
+
     local _, blockDataDown = turtle.inspectDown()
     if type(blockDataDown) == "table" then
         if blockDataDown.name == "minecraft:water" or blockDataDown.name == "minecraft:lava" then
