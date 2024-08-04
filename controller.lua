@@ -1,3 +1,4 @@
+local fileParams = {...}
 local CryptoNet = require("cryptoNet")
 
 local sendSocket = nil
@@ -7,18 +8,18 @@ function inputLoop()
     local toSend = io.read()
     CryptoNet.send(sendSocket, toSend)
     print("Sent: " .. toSend)
-    
+
     inputLoop()
 end
 
 function netStart()
     print("Enter host: ")
-    local hostName = io.read()
+    local hostName = fileParams[1] or io.read()
     local socket = CryptoNet.connect(hostName)
     print("Enter login name: ")
-    local loginName = io.read()
+    local loginName = fileParams[2] or io.read()
     print("Enter password: ")
-    local password = io.read()
+    local password = fileParams[3] or io.read()
     CryptoNet.login(socket, loginName, password)
 end
 
