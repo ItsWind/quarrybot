@@ -227,12 +227,7 @@ local states = {
             return
         elseif currentLocation.y <= -59 then
             print("Bedrock level reached. Going home.")
-            goToLocation(chestLocation, true)
-            dumpIntoChestAbove()
-            -- Give some space before next movement
-            for i=1, miningSafeYPadding do doMove("down") end
-            goToLocation(homeLocation, true)
-            currentState = "idle"
+            currentState = "gohome"
             return
         end
 
