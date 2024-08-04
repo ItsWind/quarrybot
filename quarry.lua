@@ -220,14 +220,17 @@ end
 
 local states = {
     minequarry = function()
-        local _, blockDataDown = turtle.inspectDown()
         local maxYToStart = math.min(homeLocation.y, chestLocation.y) - miningSafeYPadding
         if currentLocation.y > maxYToStart then
             print("ERROR: Current location is UNSAFE for mining quarry. Aborting.")
             currentState = "idle"
             return
-        elseif currentLocation.y <= -60 or (currentLocation.y == 59 and type(blockDataDown) ~= "string" and blockDataDown.name == "minecraft:bedrock") then
+        elseif currentLocation.y <= -59 then
             print("Bedrock level reached. Going home.")
+            goToLocation(chestLocation, true)
+            dumpIntoChestAbove()
+            -- Give some space before next movement
+            for i=1, miningSafeYPadding do doMove("down") end
             goToLocation(homeLocation, true)
             currentState = "idle"
             return
@@ -264,6 +267,10 @@ local states = {
         if saveCurrentMiningData(1, 1) then return end
     end,
     gohome = function()
+        goToLocation(chestLocation, true)
+        dumpIntoChestAbove()
+        -- Give some space before next movement
+        for i=1, miningSafeYPadding do doMove("down") end
         goToLocation(homeLocation, true)
         currentState = "idle"
     end,
