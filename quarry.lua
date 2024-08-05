@@ -25,7 +25,7 @@ end
 local Config = require("quarryConfig")
 
 local turningRight = true
-local currentState = "idle"
+local currentState = "minequarry"
 
 local homeLocation = Config.homeLocation--vector.new(2, 106, 413)
 local chestLocation = Config.chestLocation--vector.new(1, 105, 412)
