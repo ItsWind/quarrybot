@@ -274,7 +274,7 @@ local states = {
             print("ERROR: Current location is UNSAFE for mining quarry. Aborting.")
             currentState = "idle"
             return
-        elseif currentLocation.y <= -59 then
+        elseif currentLocation.y <= -60 then
             print("Bedrock level reached. Going home.")
             currentState = "gohome"
             return
