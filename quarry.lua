@@ -252,7 +252,7 @@ end
 local function detectWaterOrLava()
     local _, blockDataForward = turtle.inspect()
     if type(blockDataForward) == "table" then
-        if blockDataForward.name == "minecraft:water" or blockDataForward.name == "minecraft:lava" then
+        if (blockDataForward.name == "minecraft:water" or blockDataForward.name == "minecraft:lava") and blockDataForward.state.level == 0 then
             turtle.place()
             --turtle.dig() // not needed as this detect happens before break/move
         end
@@ -260,7 +260,7 @@ local function detectWaterOrLava()
 
     local _, blockDataDown = turtle.inspectDown()
     if type(blockDataDown) == "table" then
-        if blockDataDown.name == "minecraft:water" or blockDataDown.name == "minecraft:lava" then
+        if (blockDataDown.name == "minecraft:water" or blockDataDown.name == "minecraft:lava") and blockDataForward.state.level == 0 then
             turtle.placeDown()
             turtle.digDown()
         end
