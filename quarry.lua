@@ -68,8 +68,8 @@ local function doMove(orien)
         local _, blockDataForward = turtle.inspect()
         if type(blockDataForward) == "string" or (blockDataForward.name ~= "computercraft:turtle" and blockDataForward.name ~= "computercraft:turtle_advanced") then
             turtle.dig()
-            turtle.forward()
-            orienMoveModifications[facingDirection]()
+            local hasMoved = turtle.forward()
+            if hasMoved then orienMoveModifications[facingDirection]() end
         else
             doMove()
         end
@@ -79,8 +79,8 @@ local function doMove(orien)
         local _, blockDataOrien = turtle["inspect" .. funcName]()
         if type(blockDataOrien) == "string" or (blockDataOrien.name ~= "computercraft:turtle" and blockDataOrien.name ~= "computercraft:turtle_advanced") then
             turtle["dig" .. funcName]()
-            turtle[orien]()
-            orienMoveModifications[orien]()
+            local hasMoved = turtle[orien]()
+            if hasMoved then orienMoveModifications[orien]() end
         else
             doMove(orien)
         end
