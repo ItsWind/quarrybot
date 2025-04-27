@@ -276,6 +276,7 @@ local states = {
             return
         elseif currentLocation.y <= -60 then
             print("Bedrock level reached. Going home.")
+            doMove("up")
             currentState = "gohome"
             return
         end
