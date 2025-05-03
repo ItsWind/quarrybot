@@ -1,7 +1,11 @@
-local initFirstSlotItemDetail = turtle.getItemDetail(1)
-if initFirstSlotItemDetail == nil or initFirstSlotItemDetail.name ~= "minecraft:sponge" then
-    print("ERROR: Quarry bot requires SPONGE to be in the first inventory slot.")
-    return
+local IS_NETHER_MINER = false
+
+if IS_NETHER_MINER == false then
+  local initFirstSlotItemDetail = turtle.getItemDetail(1)
+  if initFirstSlotItemDetail == nil or initFirstSlotItemDetail.name ~= "minecraft:sponge" then
+      print("ERROR: Quarry bot requires SPONGE to be in the first inventory slot.")
+      return
+  end
 end
 
 local fileParams = {...}
@@ -250,6 +254,8 @@ local function saveCurrentMiningData(x, y)
 end
 
 local function detectWaterOrLava()
+    if IS_NETHER_MINER == true then return end
+
     local _, blockDataForward = turtle.inspect()
     if type(blockDataForward) == "table" then
         if (blockDataForward.name == "minecraft:water" or blockDataForward.name == "minecraft:lava") and blockDataForward.state.level == 0 then
@@ -274,7 +280,7 @@ local states = {
             print("ERROR: Current location is UNSAFE for mining quarry. Aborting.")
             currentState = "idle"
             return
-        elseif currentLocation.y <= -59 then
+        elseif (IS_NETHER_MINER == false and currentLocation.y <= -59) or (IS_NETHER_MINER == true and currentLocation.y <= 5) then
             print("Bedrock level reached. Going home.")
             currentState = "gohome"
             return
