@@ -168,7 +168,8 @@ end
 
 local function iterateInventory(action)
     -- Skip 1 for sponge
-    for i=2, 16 do
+    local startIndex = IS_NETHER_MINER and 1 or 2
+    for i=startIndex, 16 do
         action(i)
     end
     turtle.select(1)
