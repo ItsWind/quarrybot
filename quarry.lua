@@ -1,6 +1,7 @@
-local IS_NETHER_MINER = false
+--local IS_NETHER_MINER = false
+local Config = require("quarryConfig")
 
-if IS_NETHER_MINER == false then
+if Config.isNetherMiner == false then
   local initFirstSlotItemDetail = turtle.getItemDetail(1)
   if initFirstSlotItemDetail == nil or initFirstSlotItemDetail.name ~= "minecraft:sponge" then
       print("ERROR: Quarry bot requires SPONGE to be in the first inventory slot.")
@@ -25,8 +26,6 @@ if facingDirection ~= "n" and facingDirection ~= "e" and facingDirection ~= "s" 
     print("ERROR: Your facing direction is invalid. Try n, e, s, or w.\nProper usage: quarry {startX} {startY} {startZ} {facing}")
     return
 end
-
-local Config = require("quarryConfig")
 
 local turningRight = true
 local currentState = "minequarry"
@@ -67,29 +66,6 @@ local orienMoveModifications = {
         currentLocation.x = currentLocation.x - 1
     end
 }
-local function doMove(orien)
-    if orien == nil then
-        local _, blockDataForward = turtle.inspect()
-        if type(blockDataForward) == "string" or (blockDataForward.name ~= "computercraft:turtle" and blockDataForward.name ~= "computercraft:turtle_advanced") then
-            turtle.dig()
-            local hasMoved = turtle.forward()
-            if hasMoved then orienMoveModifications[facingDirection]() end
-        else
-            doMove()
-        end
-    elseif turtle[orien] ~= nil then
-        local funcName = orien:sub(1, 1):upper() .. orien:sub(2)
-
-        local _, blockDataOrien = turtle["inspect" .. funcName]()
-        if type(blockDataOrien) == "string" or (blockDataOrien.name ~= "computercraft:turtle" and blockDataOrien.name ~= "computercraft:turtle_advanced") then
-            turtle["dig" .. funcName]()
-            local hasMoved = turtle[orien]()
-            if hasMoved then orienMoveModifications[orien]() end
-        else
-            doMove(orien)
-        end
-    end
-end
 
 local turnDirectionNums = {
     n = 1,
@@ -103,6 +79,73 @@ local numDirectionTurns = {
     [3] = "s",
     [4] = "w"
 }
+
+local function checkIfBlockIsTurtle(blockData)
+  if blockData.name ~= nil and (blockData.name == "computercraft:turtle" or blockData.name == "computercraft:turtle_advanced") then
+    local nextTurnNum = turnDirectionNums[facingDirection] + 1
+    if nextTurnNum > 4 then nextTurnNum = 1 elseif nextTurnNum < 1 then nextTurnNum = 4 end
+    doTurn(numDirectionTurns[nextTurnNum])
+
+    turtle.dig()
+    while turtle.forward() ~= true do end
+    orienMoveModifications[facingDirection]()
+
+    nextTurnNum = turnDirectionNums[facingDirection] - 1
+    if nextTurnNum > 4 then nextTurnNum = 1 elseif nextTurnNum < 1 then nextTurnNum = 4 end
+    doTurn(numDirectionTurns[nextTurnNum])
+
+    for i=1, 2 do
+      turtle.dig()
+      while turtle.forward() ~= true do end
+      orienMoveModifications[facingDirection]()
+    end
+    return true
+  end
+  return false
+end
+local function doMove(orien)
+    if orien == nil then
+        local _, blockDataForward = turtle.inspect()
+        if not checkIfBlockIsTurtle(blockDataForward) then
+          turtle.dig()
+          local hasMoved = turtle.forward()
+          if hasMoved then
+            orienMoveModifications[facingDirection]()
+          else
+            doMove()
+          end
+        end
+        --[[if type(blockDataForward) == "string" or (blockDataForward.name ~= "computercraft:turtle" and blockDataForward.name ~= "computercraft:turtle_advanced") then
+            turtle.dig()
+            local hasMoved = turtle.forward()
+            if hasMoved then orienMoveModifications[facingDirection]() end
+        else
+            doMove()
+        end]]
+    elseif turtle[orien] ~= nil then
+        local funcName = orien:sub(1, 1):upper() .. orien:sub(2)
+        local _, blockDataOrien = turtle["inspect" .. funcName]()
+        
+        if not checkIfBlockIsTurtle(blockDataOrien) then
+          turtle["dig" .. funcName]()
+          local hasMoved = turtle[orien]()
+          if hasMoved then
+            orienMoveModifications[orien]()
+          else
+            doMove(orien)
+          end
+        end
+
+        --[[if type(blockDataOrien) == "string" or (blockDataOrien.name ~= "computercraft:turtle" and blockDataOrien.name ~= "computercraft:turtle_advanced") then
+            turtle["dig" .. funcName]()
+            local hasMoved = turtle[orien]()
+            if hasMoved then orienMoveModifications[orien]() end
+        else
+            doMove(orien)
+        end]]
+    end
+end
+
 local function doTurn()
     local modMult = 1
 
@@ -168,7 +211,7 @@ end
 
 local function iterateInventory(action)
     -- Skip 1 for sponge
-    local startIndex = IS_NETHER_MINER and 1 or 2
+    local startIndex = Config.isNetherMiner and 1 or 2
     for i=startIndex, 16 do
         action(i)
     end
@@ -255,7 +298,7 @@ local function saveCurrentMiningData(x, y)
 end
 
 local function detectWaterOrLava()
-    if IS_NETHER_MINER == true then return end
+    if Config.isNetherMiner == true then return end
 
     local _, blockDataForward = turtle.inspect()
     if type(blockDataForward) == "table" then
@@ -281,7 +324,7 @@ local states = {
             print("ERROR: Current location is UNSAFE for mining quarry. Aborting.")
             currentState = "idle"
             return
-        elseif (IS_NETHER_MINER == false and currentLocation.y <= -59) or (IS_NETHER_MINER == true and currentLocation.y <= 5) then
+        elseif (Config.isNetherMiner == false and currentLocation.y <= -59) or (Config.isNetherMiner == true and currentLocation.y <= 5) then
             print("Bedrock level reached. Going home.")
             currentState = "gohome"
             return
