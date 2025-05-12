@@ -66,6 +66,29 @@ local orienMoveModifications = {
         currentLocation.x = currentLocation.x - 1
     end
 }
+local function doMove(orien)
+    if orien == nil then
+        local _, blockDataForward = turtle.inspect()
+        if type(blockDataForward) == "string" or (blockDataForward.name ~= "computercraft:turtle" and blockDataForward.name ~= "computercraft:turtle_advanced") then
+            turtle.dig()
+            local hasMoved = turtle.forward()
+            if hasMoved then orienMoveModifications[facingDirection]() end
+        else
+            doMove()
+        end
+    elseif turtle[orien] ~= nil then
+        local funcName = orien:sub(1, 1):upper() .. orien:sub(2)
+
+        local _, blockDataOrien = turtle["inspect" .. funcName]()
+        if type(blockDataOrien) == "string" or (blockDataOrien.name ~= "computercraft:turtle" and blockDataOrien.name ~= "computercraft:turtle_advanced") then
+            turtle["dig" .. funcName]()
+            local hasMoved = turtle[orien]()
+            if hasMoved then orienMoveModifications[orien]() end
+        else
+            doMove(orien)
+        end
+    end
+end
 
 local turnDirectionNums = {
     n = 1,
@@ -79,73 +102,6 @@ local numDirectionTurns = {
     [3] = "s",
     [4] = "w"
 }
-
-local function checkIfBlockIsTurtle(blockData)
-  if blockData.name ~= nil and (blockData.name == "computercraft:turtle" or blockData.name == "computercraft:turtle_advanced") then
-    local nextTurnNum = turnDirectionNums[facingDirection] + 1
-    if nextTurnNum > 4 then nextTurnNum = 1 elseif nextTurnNum < 1 then nextTurnNum = 4 end
-    doTurn(numDirectionTurns[nextTurnNum])
-
-    turtle.dig()
-    while turtle.forward() ~= true do end
-    orienMoveModifications[facingDirection]()
-
-    nextTurnNum = turnDirectionNums[facingDirection] - 1
-    if nextTurnNum > 4 then nextTurnNum = 1 elseif nextTurnNum < 1 then nextTurnNum = 4 end
-    doTurn(numDirectionTurns[nextTurnNum])
-
-    for i=1, 2 do
-      turtle.dig()
-      while turtle.forward() ~= true do end
-      orienMoveModifications[facingDirection]()
-    end
-    return true
-  end
-  return false
-end
-local function doMove(orien)
-    if orien == nil then
-        local _, blockDataForward = turtle.inspect()
-        if not checkIfBlockIsTurtle(blockDataForward) then
-          turtle.dig()
-          local hasMoved = turtle.forward()
-          if hasMoved then
-            orienMoveModifications[facingDirection]()
-          else
-            doMove()
-          end
-        end
-        --[[if type(blockDataForward) == "string" or (blockDataForward.name ~= "computercraft:turtle" and blockDataForward.name ~= "computercraft:turtle_advanced") then
-            turtle.dig()
-            local hasMoved = turtle.forward()
-            if hasMoved then orienMoveModifications[facingDirection]() end
-        else
-            doMove()
-        end]]
-    elseif turtle[orien] ~= nil then
-        local funcName = orien:sub(1, 1):upper() .. orien:sub(2)
-        local _, blockDataOrien = turtle["inspect" .. funcName]()
-        
-        if not checkIfBlockIsTurtle(blockDataOrien) then
-          turtle["dig" .. funcName]()
-          local hasMoved = turtle[orien]()
-          if hasMoved then
-            orienMoveModifications[orien]()
-          else
-            doMove(orien)
-          end
-        end
-
-        --[[if type(blockDataOrien) == "string" or (blockDataOrien.name ~= "computercraft:turtle" and blockDataOrien.name ~= "computercraft:turtle_advanced") then
-            turtle["dig" .. funcName]()
-            local hasMoved = turtle[orien]()
-            if hasMoved then orienMoveModifications[orien]() end
-        else
-            doMove(orien)
-        end]]
-    end
-end
-
 local function doTurn()
     local modMult = 1
 
